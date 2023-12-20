@@ -12,7 +12,7 @@ class Main {
         if ($connection->isConnected()) {
             require_once("MyGmail.php");
             $gmail = new MyGmail($connection->getClient());
-            return $gmail->getLabels();
+            return $gmail->getMessages();
         } else {
             return $connection->getUnauthData();
         }

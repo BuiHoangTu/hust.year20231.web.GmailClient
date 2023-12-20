@@ -39,10 +39,54 @@ class MyGmail
             return 'Message: ' . $e->getMessage();
         }
     }
+
+    public function getMessages()
+    {
+        $service = new Gmail($this->client);
+        $userId = "me";
+
+        $pageToken = NULL;
+        $messages = array();
+        $optParams = array();
+
+        $i = 0;
+        do {
+            if ($i > 5)
+                break;
+            $i++;
+            try {
+                if ($pageToken) {
+                    $optParams["pageToken"] = $pageToken;
+                }
+                $messagesResponse = $service->users_messages->listUsersMessages($userId, $optParams);
+
+                if ($messagesResponse->getMessages()) {
+                    $messages = array_merge($messages, $messagesResponse->getMessages());
+                    $pageToken = $messagesResponse->getNextPageToken();
+                }
+            } catch (Exception $e) {
+                print "Error: " . $e->getMessage();
+            }
+        } while ($pageToken);
+
+        $ii = 0;
+        foreach ($messages as $m) {
+            print "MessageId: " . $m->getId() . "<br/>";
+            $message = $service->users_messages->get($userId, $m->getId());
+
+            $messageInParts = $message->getPayload()->getParts();
+            if ($messageInParts != NULL && count($messageInParts) > 1) {
+                $data = $messageInParts[1]->getBody()->getData();
+            } else {
+                $data = $message->getPayload()->getBody()->getData();
+            }
+
+            echo "<pre>".var_export($data, true)."</pre>";  
+
+            if ($ii++ >= 10) break;
+        }
+
+        return $messages;
+
+    }
 }
-
-
-
-
-
-// [END gmail_quickstart]
