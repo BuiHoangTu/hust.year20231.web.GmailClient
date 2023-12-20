@@ -70,8 +70,8 @@ class MyGmail
         } while ($pageToken);
 
         $ii = 0;
+        $decodedMessages = new ArrayObject();
         foreach ($messages as $m) {
-            print "MessageId: " . $m->getId() . "<br/>";
             $message = $service->users_messages->get($userId, $m->getId());
 
             $messageInParts = $message->getPayload()->getParts();
@@ -81,15 +81,15 @@ class MyGmail
                 $data = $message->getPayload()->getBody()->getData();
             }
 
+            // decode
             $out = str_replace("-","+", $data);
             $out = str_replace("_","/", $out);
-            echo base64_decode($out);
-            // echo "<pre>".var_export($data, true)."</pre>";  
+            $decodedMessages->append(base64_decode($out));
 
             if ($ii++ >= 10) break;
         }
 
-        return $messages;
+        return $decodedMessages;
 
     }
 }

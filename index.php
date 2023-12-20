@@ -6,15 +6,19 @@ class Main {
         include __DIR__ .'/connection.php';
     }
 
-    public function go() {
+    public function main() {
         $connection = new Connection();
 
         if ($connection->isConnected()) {
             require_once("MyGmail.php");
             $gmail = new MyGmail($connection->getClient());
-            return $gmail->getMessages();
+            $emails = $gmail->getMessages();
+
+            foreach ($emails as $email) {
+                echo $email;
+            }
         } else {
-            return $connection->getUnauthData();
+            echo $connection->getUnauthData();
         }
     }
 }
@@ -23,5 +27,5 @@ class Main {
 $main = new Main();
 echo "<!DOCTYPE html><html lang='en'>";
 echo "<h1>Tu's Gmail</h1>";
-echo $main->go();
+$main->main();
 echo "</html>";
