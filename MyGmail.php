@@ -81,7 +81,10 @@ class MyGmail
                 $data = $message->getPayload()->getBody()->getData();
             }
 
-            echo "<pre>".var_export($data, true)."</pre>";  
+            $out = str_replace("-","+", $data);
+            $out = str_replace("_","/", $out);
+            echo base64_decode($out);
+            // echo "<pre>".var_export($data, true)."</pre>";  
 
             if ($ii++ >= 10) break;
         }
