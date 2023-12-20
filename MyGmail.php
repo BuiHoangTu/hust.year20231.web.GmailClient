@@ -1,19 +1,20 @@
 <?php
 use Google\Service\Gmail;
 // Replace With below if future error 
-use Google_Service_Gmail;
+// use Google_Service_Gmail;
 
 class MyGmail
 {
-    private $client;
+    private $service;
     public function __construct($client)
     {
-        $this->client = $client;
+        $this->service = new Gmail($client);
+        require_once __DIR__ ."/MessagePage.php";
     }
 
     public function getLabels()
     {
-        $service = new Gmail($this->client);
+        $service = $this->service;
 
         try {
             // Print the labels in the user's account.
@@ -40,56 +41,43 @@ class MyGmail
         }
     }
 
-    public function getMessages()
+    public function getMessagePage($previousMessagePage)
     {
-        $service = new Gmail($this->client);
+        $service = $this->service;
         $userId = "me";
 
-        $pageToken = NULL;
-        $messages = array();
         $optParams = array();
 
-        $i = 0;
-        do {
-            if ($i > 5)
-                break;
-            $i++;
-            try {
-                if ($pageToken) {
-                    $optParams["pageToken"] = $pageToken;
-                }
-                $messagesResponse = $service->users_messages->listUsersMessages($userId, $optParams);
-
-                if ($messagesResponse->getMessages()) {
-                    $messages = array_merge($messages, $messagesResponse->getMessages());
-                    $pageToken = $messagesResponse->getNextPageToken();
-                }
-            } catch (Exception $e) {
-                print "Error: " . $e->getMessage();
+        try {
+            if ($previousMessagePage) {
+                $optParams["pageToken"] = $previousMessagePage->getNextPageToken;
             }
-        } while ($pageToken);
+            $messagesResponse = $service->users_messages->listUsersMessages($userId, $optParams);
 
-        $ii = 0;
-        $decodedMessages = new ArrayObject();
-        foreach ($messages as $m) {
-            $message = $service->users_messages->get($userId, $m->getId());
+            $messages = $messagesResponse->getMessages();
+            return new MessagePage($messages, $messagesResponse->getNextPageToken());
+        } catch (Exception $e) {
+            print "Error: " . $e->getMessage();
+        }
+    }
 
-            $messageInParts = $message->getPayload()->getParts();
-            if ($messageInParts != NULL && count($messageInParts) > 1) {
-                $data = $messageInParts[1]->getBody()->getData();
-            } else {
-                $data = $message->getPayload()->getBody()->getData();
-            }
+    public function getMessage($messageId)
+    {
+        $service = $this->service;
+        $userId = "me";
 
-            // decode
-            $out = str_replace("-","+", $data);
-            $out = str_replace("_","/", $out);
-            $decodedMessages->append(base64_decode($out));
+        $message = $service->users_messages->get($userId, $messageId);
 
-            if ($ii++ >= 10) break;
+        $messageInParts = $message->getPayload()->getParts();
+        if ($messageInParts != NULL && count($messageInParts) > 1) {
+            $data = $messageInParts[1]->getBody()->getData();
+        } else {
+            $data = $message->getPayload()->getBody()->getData();
         }
 
-        return $decodedMessages;
-
+        // decode
+        $out = str_replace("-", "+", $data);
+        $out = str_replace("_", "/", $out);
+        return base64_decode($out);
     }
 }

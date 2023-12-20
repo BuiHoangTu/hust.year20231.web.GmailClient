@@ -3,7 +3,7 @@ class Main {
     public function __construct() {
         // Include others 
         require __DIR__ . '/vendor/autoload.php';
-        include __DIR__ .'/connection.php';
+        include __DIR__ .'/Connection.php';
     }
 
     public function main() {
@@ -12,10 +12,12 @@ class Main {
         if ($connection->isConnected()) {
             require_once("MyGmail.php");
             $gmail = new MyGmail($connection->getClient());
-            $emails = $gmail->getMessages();
+            $page = $gmail->getMessagePage(null);
 
-            foreach ($emails as $email) {
-                echo $email;
+            foreach ($page->getMessages() as $email) {
+                echo "<p>";
+                echo "Email Id: " . $email->getId();
+                echo "</p>";
             }
         } else {
             echo $connection->getUnauthData();
