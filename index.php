@@ -3,7 +3,7 @@ class Main {
     public function __construct() {
         // Include others 
         require __DIR__ . '/vendor/autoload.php';
-        include __DIR__ .'connection.php';
+        include __DIR__ .'/connection.php';
     }
 
     public function go() {
