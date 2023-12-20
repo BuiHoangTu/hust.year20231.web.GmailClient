@@ -1,24 +1,27 @@
 <?php
 use Google\Client;
 
+
 class Connection
 {
+    private $REDIRECT_URL = "http://localhost/20200547/";
     private $credentials;
     private $client;
     private $connected = false;
 
     public function __construct()
     {
-        $this->credentials = "credentials.json";
+        $this->credentials = "credentials-web.json";
         $this->client = $this->createClient();
+        $this->client->setRedirectUri($this->REDIRECT_URL);
     }
 
     private function createClient()
     {
         $client = new Client();
         $client->setApplicationName('Gmail API PHP Quickstart');
-        $client->setScopes('https://www.googleapis.com/auth/gmail.addons.current.message.readonly');
-        $client->setAuthConfig('credentials.json');
+        $client->setScopes('https://mail.google.com/');
+        $client->setAuthConfig($this->credentials);
         $client->setAccessType('offline');
         $client->setPrompt('select_account consent');
 
@@ -42,6 +45,11 @@ class Connection
 
                 // Exchange authorization code for an access token.
                 $accessToken = $client->fetchAccessTokenWithAuthCode($authCode);
+                if ($accessToken['error']) {
+                    error_log("$accessToken[error]: $accessToken[error_description]");
+                    $this->connected = false;
+                    return $client;
+                }
                 $client->setAccessToken($accessToken);
 
                 // Check to see if there was an error.
