@@ -20,16 +20,20 @@ class MyGmail
             $user = 'me';
             $results = $service->users_labels->listUsersLabels($user);
 
+
+            $returnedHtml = '';
             if (count($results->getLabels()) == 0) {
-                print "No labels found.\n";
+                $returnedHtml = "<p>No labels found.</p>";
             } else {
-                print "Labels:\n";
+                $returnedHtml = "<p>Labels:<p>";
                 foreach ($results->getLabels() as $label) {
-                    printf("- %s\n", $label->getName());
+                    $returnedHtml .= "<p>";
+                    $returnedHtml .= $label->getName();
+                    $returnedHtml .= "</p>";
                 }
             }
 
-            return "Got labels";
+            return $returnedHtml;
         } catch (Exception $e) {
             // TODO(developer) - handle error appropriately
             return 'Message: ' . $e->getMessage();
