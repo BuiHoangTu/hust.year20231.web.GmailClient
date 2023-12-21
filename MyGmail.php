@@ -68,6 +68,12 @@ class MyGmail
 
         $message = $service->users_messages->get($userId, $messageId);
 
+        return $message;
+    }
+
+    public function decodeMessage($message) {
+        $service = $this->service;
+
         $messageInParts = $message->getPayload()->getParts();
         if ($messageInParts != NULL && count($messageInParts) > 1) {
             $data = $messageInParts[1]->getBody()->getData();

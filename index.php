@@ -1,12 +1,15 @@
 <?php
-class Main {
-    public function __construct() {
+class Main
+{
+    public function __construct()
+    {
         // Include others 
         require __DIR__ . '/vendor/autoload.php';
-        include __DIR__ .'/Connection.php';
+        include __DIR__ . '/Connection.php';
     }
 
-    public function main() {
+    public function main()
+    {
         $connection = new Connection();
 
         if ($connection->isConnected()) {
@@ -17,8 +20,19 @@ class Main {
             foreach ($page->getMessages() as $email) {
                 echo "<p>";
                 echo "Email Id: " . $email->getId();
+
+                $headers = $gmail->getMessage($email->getId())->getPayload()->getHeaders();
+                foreach ($headers as $header) {
+                    if ($header->getName() == "Subject") {
+                        echo '<div>';
+                        echo '<a href="view_mail.php?messageId=' . $email->getId() . '">' . $header->getValue() . '</a>';
+                        echo '</div>';
+                    }
+                }
+
                 echo "</p>";
             }
+
         } else {
             echo $connection->getUnauthData();
         }

@@ -3,8 +3,8 @@ use Google\Service\Gmail\Message;
 
 class MessagePage {
     /** @var Message[] */ 
-    private  $messages;
-    private $nextPageToken;
+    public  $messages;
+    public $nextPageToken;
 
     /**
      * @param Message[] $messages
@@ -21,4 +21,5 @@ class MessagePage {
     public function getNextPageToken() {
         return $this->nextPageToken;
     }
+
 }
