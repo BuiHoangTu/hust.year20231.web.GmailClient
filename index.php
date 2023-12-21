@@ -14,24 +14,31 @@ class Main
 
         if ($connection->isConnected()) {
             require_once("MyGmail.php");
-            $gmail = new MyGmail($connection->getClient());
+            $client = new MyGmail($connection->getClient());
 
             $pageToken = isset($_GET["pageToken"]) ? $_GET["pageToken"] : NULL;
 
-            $page = $gmail->getMessagePage($pageToken);
-            
+            $page = $client->getMessagePage($pageToken);
+
+            echo "<div class='vertical-box'>";
+            // Create mail 
+            echo "<div>";
+            echo '<a href="create_mail.php" class="box-item" style="margin-left: 20px;">Create Mail</a>';
+            echo '</div>';
+
             // Display the "Next Page" link
             if (!empty($page->getNextPageToken())) {
-                echo '<div style="margin-top: 20px; font-weight: bold; font-size: 18px;">';
-                echo '<a href="index.php?pageToken=' . $page->getNextPageToken() . '">Next Page</a>';
+                echo '<div class="box-item" style="margin-top: 20px; font-weight: bold; font-size: 18px;">';
+                echo '<a href="index.php?pageToken=' . $page->getNextPageToken() . '">Next Page &rarr;</a>';
                 echo '</div>';
             }
-            
+            echo "</div>";
+
             foreach ($page->getMessages() as $email) {
                 echo "<p>";
                 echo "Email Id: " . $email->getId();
 
-                $headers = $gmail->getMessage($email->getId())->getPayload()->getHeaders();
+                $headers = $client->getMessage($email->getId())->getPayload()->getHeaders();
                 foreach ($headers as $header) {
                     if ($header->getName() == "Subject") {
                         echo '<div>';
@@ -48,10 +55,40 @@ class Main
         }
     }
 }
+?>
 
 
-$main = new Main();
-echo "<!DOCTYPE html><html lang='en'>";
-echo "<h1>Tu's Gmail</h1>";
-$main->main();
-echo "</html>";
+<!DOCTYPE html>
+<html lang='en'>
+
+<head>
+    <title>Tu's Gmail</title>
+    <style>
+        .vertical-box {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 300px;
+            border: 1px solid #ccc;
+        }
+
+        .box-item {
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Tu's Gmail</h1>
+
+    <?php
+    $main = new Main();
+    $main->main();
+    ?>
+
+</body>
+
+</html>

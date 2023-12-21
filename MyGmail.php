@@ -86,4 +86,24 @@ class MyGmail
         $out = str_replace("_", "/", $out);
         return base64_decode($out);
     }
+
+    public function sendMessage($to, $subject, $message) {
+        $service = $this->service;
+        $from = $service->users->getProfile("me")->getEmailAddress();
+
+        $raw = "From: myAddress<$from>\r\n";
+        $raw .= "To: toAddress<$to>\r\n";
+        $raw .= "Subject: =?utf-8?B?" . base64_encode($subject) . "?=\r\n";
+        $raw .= "MIME-Version: 1.0\r\n";
+        $raw .= "Content-Type: text/html; charset=utf-8\r\n";
+        $raw .= 'Content-Transfer-Encoding: quoted-printable' . "\r\n";
+        $raw .= "\r\n$message\r\n";
+
+        $encodedRaw = rtrim(strtr(base64_encode($raw), '+/', '-_'), '=');
+        $msg = new Gmail\Message();
+        $msg->setRaw($encodedRaw);
+
+
+        $this->service->users_messages->send("me", $msg);
+    }
 }
