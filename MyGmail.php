@@ -41,7 +41,7 @@ class MyGmail
         }
     }
 
-    public function getMessagePage($previousMessagePage)
+    public function getMessagePage($pageToken)
     {
         $service = $this->service;
         $userId = "me";
@@ -49,8 +49,8 @@ class MyGmail
         $optParams = array();
 
         try {
-            if ($previousMessagePage) {
-                $optParams["pageToken"] = $previousMessagePage->getNextPageToken;
+            if ($pageToken) {
+                $optParams["pageToken"] = $pageToken;
             }
             $messagesResponse = $service->users_messages->listUsersMessages($userId, $optParams);
 
