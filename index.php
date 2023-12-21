@@ -15,8 +15,18 @@ class Main
         if ($connection->isConnected()) {
             require_once("MyGmail.php");
             $gmail = new MyGmail($connection->getClient());
-            $page = $gmail->getMessagePage(null);
 
+            $pageToken = isset($_GET["pageToken"]) ? $_GET["pageToken"] : NULL;
+
+            $page = $gmail->getMessagePage($pageToken);
+            
+            // Display the "Next Page" link
+            if (!empty($page->getNextPageToken())) {
+                echo '<div style="margin-top: 20px; font-weight: bold; font-size: 18px;">';
+                echo '<a href="index.php?pageToken=' . $page->getNextPageToken() . '">Next Page</a>';
+                echo '</div>';
+            }
+            
             foreach ($page->getMessages() as $email) {
                 echo "<p>";
                 echo "Email Id: " . $email->getId();
